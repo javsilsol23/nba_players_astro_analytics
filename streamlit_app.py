@@ -67,6 +67,45 @@ def plot_horoscope_data(df, title, planet):
     return fig
 
 
+def plot_pie_chart(df, title, names, color_map):
+
+    fig = px.pie(df,
+                 names=names, title=title,
+                 color=names, color_discrete_map=color_map
+                 )
+    fig.update_layout(
+        # Set to 'rgba(0,0,0,0)' for transparent background
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='#ccffe6'  # Set the desired background color
+    )
+
+    return fig
+
+
+def classify_sign(s):
+    signs = ['ARIES', 'TAURUS', 'GEMINI', 'CANCER', 'LEO', 'VIRGO',
+             'LIBRA', 'SCORPIO', 'SAGITTARIUS', 'CAPRICORN', 'AQUARIUS', 'PISCES']
+    element = modality = ''
+
+    if (signs.index(s) + 1) % 3 == 0:
+        modality = 'cardinal'
+    elif (signs.index(s) + 1) % 3 == 1:
+        modality = 'fixed'
+    else:
+        modality = 'mutable'
+
+    if (signs.index(s) + 1) % 4 == 0:
+        element = 'fire'
+    elif (signs.index(s) + 1) % 4 == 1:
+        element = 'earth'
+    elif (signs.index(s) + 1) % 4 == 2:
+        element = 'air'
+    else:
+        element = 'water'
+
+    return element, modality
+
+
 @st.cache_data
 def load_data():
     data = pd.read_csv('players_astro3.csv')
@@ -223,6 +262,32 @@ with tab2:
 
         fig = plot_horoscope_data(filtered_data, title, planet.lower())
         st.plotly_chart(fig)
+
+        filtered_data[['element', 'modality']] = filtered_data['sun'].apply(
+            classify_sign).apply(pd.Series)
+
+        col2_a, col2_b = st.columns(2)
+
+        with col2_a:
+            color_map = {
+                'fire': 'red',
+                'earth': 'brown',
+                'air': 'yellow',
+                'water': 'blue'
+            }
+            fig1 = plot_pie_chart(
+                filtered_data, 'Players by element', 'element', color_map)
+            st.plotly_chart(fig1, use_container_width=True)
+
+        with col2_b:
+            color_map = {
+                'cardinal': 'red',
+                'fix': 'blue',
+                'mutable': 'white'
+            }
+            fig2 = plot_pie_chart(
+                filtered_data, 'Players by modality', 'modality', color_map)
+            st.plotly_chart(fig2, use_container_width=True)
 
     with col3:
         st.write('')
