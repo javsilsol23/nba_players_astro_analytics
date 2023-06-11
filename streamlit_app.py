@@ -17,10 +17,28 @@ def plot_venus_data(df, title):
                  )
 
     fig.update_layout(
-        plot_bgcolor='lightgreen',
+        plot_bgcolor='#ccffe6',
         showlegend=False,
         width=1000,
         height=600
+    )
+
+    return fig
+
+
+def plot_venus_colors(df, title):
+    fig = px.pie(df,
+                 names='color', title='Venus Cycle Distribution',
+                 color='color', color_discrete_map={
+                     'Red': 'red',
+                     'Blue': 'blue',
+                     'Black': 'black',
+                     'White': "white"
+                 }
+                 )
+    fig.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='#ccffe6'  # Set the desired background color
     )
 
     return fig
@@ -40,7 +58,7 @@ def plot_horoscope_data(df, title, planet):
                  )
 
     fig.update_layout(
-        plot_bgcolor='lightgreen',
+        plot_bgcolor='#ccffe6',
         showlegend=False,
         width=1000,
         height=600
@@ -79,6 +97,8 @@ with tab1:
         data = load_data()
         data = data.drop(['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter',
                          'saturn', 'uranus', 'neptune', 'pluto', 'nn', 'asc', 'mc'], axis=1)
+
+        data['color'] = data['venus_cycle'].str[:-2]
 
         with st.expander('Display filters'):
 
@@ -126,6 +146,9 @@ with tab1:
         fig = plot_venus_data(
             filtered_data, 'Total Player Count by Venus Interval')
         st.plotly_chart(fig)
+
+        fig2 = plot_venus_colors(filtered_data, 'By Color')
+        st.plotly_chart(fig2)
 
     with col3:
         st.write('')
